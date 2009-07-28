@@ -11,10 +11,12 @@
  */
 package org.thiesen.hhpt.search;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,9 +55,9 @@ public class HHPTIndexEngineServlet extends BaseServlet {
 
     @Override
     protected void doPost( final HttpServletRequest req, @SuppressWarnings( "unused" ) final HttpServletResponse resp ) throws ServletException, IOException {
-        final BufferedReader reader = req.getReader();
+        final InputStream inStream = req.getInputStream();
         try {
-            final Element rootElement = getRootElement( reader );
+            final Element rootElement = getRootElement( inStream );
             
             final String name = rootElement.getName();
             
@@ -182,11 +184,12 @@ public class HHPTIndexEngineServlet extends BaseServlet {
         doc.add( new Field( field, value == null ? "" : value, Store.YES, Index.NO ) );
     }
 
-    private Element getRootElement( final BufferedReader reader ) throws JDOMException, IOException {
+    private Element getRootElement( final InputStream inStream ) throws JDOMException, IOException {
         final SAXBuilder builder = new SAXBuilder();
+        
         builder.setValidation( false );
         
-        final Document doc = builder.build( reader );
+        final Document doc = builder.build( new InputStreamReader( inStream, Charset.forName( "utf8" ) ) );
 
         final Element root = doc.getRootElement();
         

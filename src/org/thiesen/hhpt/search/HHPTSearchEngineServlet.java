@@ -16,6 +16,7 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.spatial.tier.LatLongDistanceFilter;
 import org.thiesen.hhpt.search.beans.SearchParameters;
@@ -29,6 +30,8 @@ public class HHPTSearchEngineServlet extends BaseServlet {
 
     private static final int JSON_PADDING_WIDTH = 10;
 
+    private volatile Searcher _cachedSearcher;
+    
     @Override
     public void doGet( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException, ServletException {
         try {
@@ -86,7 +89,7 @@ public class HHPTSearchEngineServlet extends BaseServlet {
     }
 
     private Stations execute( final SearchParameters params ) throws IOException, ClassNotFoundException {
-        final IndexSearcher searcher = getSearcher();
+        final Searcher searcher = getSearcher();
         
         final LatLongDistanceFilter filter = new LatLongDistanceFilter( params.getLatitude(), 
                                                                         params.getLongitude(), 
@@ -104,14 +107,13 @@ public class HHPTSearchEngineServlet extends BaseServlet {
         
     }
 
-    private Stations extractStations( final TopDocs search, final IndexSearcher searcher ) throws CorruptIndexException, IOException {
+    private Stations extractStations( final TopDocs search, final Searcher searcher ) throws CorruptIndexException, IOException {
         final Stations retval = new Stations();
         for ( final ScoreDoc doc : search.scoreDocs ) {
             final Document document = searcher.doc( doc.doc );
             retval.add( document.get( IndexFieldNames.ID ),
                         document.get( IndexFieldNames.LAT ),
                         document.get( IndexFieldNames.LNG ),
-                        null,
                         StationType.valueOf( document.get( IndexFieldNames.STATION_TYPE ) ),
                         document.get( IndexFieldNames.STATION_NAME ),
                         document.get( IndexFieldNames.OPERATOR ) );
@@ -120,8 +122,16 @@ public class HHPTSearchEngineServlet extends BaseServlet {
         return retval;
     }
 
-    private IndexSearcher getSearcher() throws CorruptIndexException, IOException, ClassNotFoundException {
-        return new IndexSearcher( loadDirectory(), true );
+    private Searcher getSearcher() throws CorruptIndexException, IOException, ClassNotFoundException {
+        Searcher searcher = _cachedSearcher;
+        if ( searcher != null ) {
+            return searcher;
+        }
+        searcher = new IndexSearcher( loadDirectory(), true );
+        
+        _cachedSearcher = searcher;
+        
+        return searcher;
     }
 
     private SearchParameters extractSearchParameters( final HttpServletRequest req ) {
