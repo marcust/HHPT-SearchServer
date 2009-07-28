@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
+
+	<servlet>
+		<servlet-name>HHPTSearchEngine</servlet-name>
+		<servlet-class>org.thiesen.hhpt.search.HHPTSearchEngineServlet</servlet-class>
+	</servlet>
+
+        <servlet>
+                <servlet-name>HHPTIndexEngine</servlet-name>
+                <servlet-class>org.thiesen.hhpt.search.HHPTIndexEngineServlet</servlet-class>
+        </servlet>
+        
+        <servlet>
+                <servlet-name>HHPTDeleteIndex</servlet-name>
+                <servlet-class>org.thiesen.hhpt.search.HHPTDeleteIndexServlet</servlet-class>
+        </servlet>
+        
+        <servlet>
+                <servlet-name>HHPTCountIndex</servlet-name>
+                <servlet-class>org.thiesen.hhpt.search.HHPTCountIndexServlet</servlet-class>
+        </servlet>
+
+	<servlet-mapping>
+		<servlet-name>HHPTSearchEngine</servlet-name>
+		<url-pattern>/search</url-pattern>
+	</servlet-mapping>
+        <servlet-mapping>
+                <servlet-name>HHPTIndexEngine</servlet-name>
+                <url-pattern>/update</url-pattern>
+        </servlet-mapping>
+        <servlet-mapping>
+                <servlet-name>HHPTDeleteIndex</servlet-name>
+                <url-pattern>/delete</url-pattern>
+        </servlet-mapping>
+        <servlet-mapping>
+                <servlet-name>HHPTCountIndex</servlet-name>
+                <url-pattern>/count</url-pattern>
+        </servlet-mapping>
+
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+</web-app>
