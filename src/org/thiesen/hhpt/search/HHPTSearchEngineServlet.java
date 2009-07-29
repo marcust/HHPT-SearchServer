@@ -100,7 +100,7 @@ public class HHPTSearchEngineServlet extends BaseServlet {
         
 
         
-        final TopDocs results = searcher.search( new MatchAllDocsQuery(), filter, 100 );
+        final TopDocs results = searcher.search( new MatchAllDocsQuery(), filter, 1000 );
         
         return extractStations( results, searcher );
         
